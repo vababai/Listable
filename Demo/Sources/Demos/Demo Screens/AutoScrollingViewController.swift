@@ -57,6 +57,10 @@ final class AutoScrollingViewController : UIViewController
     }
 
     private func updateItems(autoScrollIfVisible lastItem : AnyIdentifier? = nil) {
+        
+        self.list.configure { }
+        
+        
         self.list.configure { list in
             list.appearance = .demoAppearance
             list.layout = .demoLayout

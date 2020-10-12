@@ -58,7 +58,19 @@ final class BlueprintListDemoViewController : UIViewController
                 }
 
                 section += podcasts.map { podcast in
-                    PodcastRow(podcast: podcast)
+                    Item(
+                        podcast,
+                        identifier: { $0.name },
+                        element: { (<#Represented#>, <#ApplyItemContentInfo#>) -> Element in
+                            <#code#>
+                    },
+                        background: { (<#Represented#>, <#ApplyItemContentInfo#>) -> Element? in
+                            <#code#>
+                    },
+                        selectedBackground: { (<#Represented#>, <#ApplyItemContentInfo#>) -> Element? in
+                            <#code#>
+                    }
+                    )
                 }
             }
         }

@@ -1,39 +1,67 @@
 //
 //  Item.swift
-//  BlueprintLists
+//  BlueprintUILists
 //
 //  Created by Kyle Van Essen on 9/10/20.
 //
 
 import Listable
+import BlueprintUI
 
 
-public extension Item
+extension Item
 {
-    static func element<Content>(
-        _ content : Content,
+    public init<Represented>(
+        _ representing : Represented,
         
-        identifier : @escaping (Content) -> AnyHashable,
+        identifier : @escaping (Represented) -> AnyHashable,
         
-        isEquivalent : @escaping (Content, Content) -> Bool,
+        isEquivalent : @escaping (Represented, Represented) -> Bool,
         
-        element : @escaping (Content, ApplyItemContentInfo) -> Element,
-        background : @escaping (Content, ApplyItemContentInfo) -> Element? = { _, _ in nil },
-        selectedBackground : @escaping (Content, ApplyItemContentInfo) -> Element? = { _, _ in nil },
+        element : @escaping (Represented, ApplyItemContentInfo) -> Element,
+        background : @escaping (Represented, ApplyItemContentInfo) -> Element? = { _, _ in nil },
+        selectedBackground : @escaping (Represented, ApplyItemContentInfo) -> Element? = { _, _ in nil },
         
-        configure : (inout Item<BlueprintItemContentWrapper<Content>>) -> () = { _ in }
+        configure : (inout Item<BlueprintItemContentWrapper<Represented>>) -> () = { _ in }
         
-    ) -> Item<BlueprintItemContentWrapper<Content>>
+    ) where Content == BlueprintItemContentWrapper<Represented>
     {
-        Item<BlueprintItemContentWrapper<Content>>(
-            BlueprintItemContentWrapper<Content>(
-                content: content,
-                identifierProvider: identifier,
-                isEquivalent: isEquivalent,
-                element: element,
-                background: background,
-                selectedBackground: selectedBackground
+        self.init(
+            BlueprintItemContentWrapper<Represented>(
+                representing: representing,
                 
+                identifierProvider: identifier,
+                isEquivalentProvider: isEquivalent,
+                elementProvider: element,
+                backgroundProvider: background,
+                selectedBackgroundProvider: selectedBackground
+            ),
+            build: configure
+        )
+    }
+    
+    public init<Represented>(
+        _ representing : Represented,
+        
+        identifier : @escaping (Represented) -> AnyHashable,
+                
+        element : @escaping (Represented, ApplyItemContentInfo) -> Element,
+        background : @escaping (Represented, ApplyItemContentInfo) -> Element? = { _, _ in nil },
+        selectedBackground : @escaping (Represented, ApplyItemContentInfo) -> Element? = { _, _ in nil },
+        
+        configure : (inout Item<BlueprintItemContentWrapper<Represented>>) -> () = { _ in }
+        
+    ) where Content == BlueprintItemContentWrapper<Represented>, Represented:Equatable
+    {
+        self.init(
+            BlueprintItemContentWrapper<Represented>(
+                representing: representing,
+                
+                identifierProvider: identifier,
+                isEquivalentProvider: { $0 == $1 },
+                elementProvider: element,
+                backgroundProvider: background,
+                selectedBackgroundProvider: selectedBackground
             ),
             build: configure
         )
@@ -41,33 +69,33 @@ public extension Item
 }
 
 
-public struct BlueprintItemContentWrapper<Content> : BlueprintItemContent
+public struct BlueprintItemContentWrapper<Represented> : BlueprintItemContent
 {
-    public var content : Content
+    public var representing : Represented
 
-    var identifierProvider : (Content) -> AnyHashable
-    var isEquivalent : (Content, Content) -> Bool
-    var element : (Content, ApplyItemContentInfo) -> Element
-    var background : (Content, ApplyItemContentInfo) -> Element?
-    var selectedBackground : (Content, ApplyItemContentInfo) -> Element?
+    var identifierProvider : (Represented) -> AnyHashable
+    var isEquivalentProvider : (Represented, Represented) -> Bool
+    var elementProvider : (Represented, ApplyItemContentInfo) -> Element
+    var backgroundProvider : (Represented, ApplyItemContentInfo) -> Element?
+    var selectedBackgroundProvider : (Represented, ApplyItemContentInfo) -> Element?
     
     public var identifier: Identifier<Self> {
-        .init(self.identifierProvider(self.content))
+        .init(self.identifierProvider(self.representing))
     }
     
     public func isEquivalent(to other: Self) -> Bool {
-        self.isEquivalent(self.content, other.content)
+        self.isEquivalentProvider(self.representing, other.representing)
     }
     
     public func element(with info: ApplyItemContentInfo) -> Element {
-        self.element(self.content, info)
+        self.elementProvider(self.representing, info)
     }
     
     public func backgroundElement(with info: ApplyItemContentInfo) -> Element? {
-        self.background(self.content, info)
+        self.backgroundProvider(self.representing, info)
     }
     
     public func selectedBackgroundElement(with info: ApplyItemContentInfo) -> Element? {
-        self.selectedBackground(self.content, info)
+        self.selectedBackgroundProvider(self.representing, info)
     }
 }

@@ -46,17 +46,19 @@ public enum AutoScrollAction {
     public static func scrollTo(
         _ destination : ScrollDestination? = nil,
         onInsertOf insertedIdentifier: AnyIdentifier,
-        position: ItemScrollPosition,
-        animated: Bool = false,
-        shouldPerform : @escaping (ListScrollPositionInfo) -> Bool = { _ in true }
+        position: ScrollPosition,
+        animation: ScrollAnimation = .none,
+        shouldPerform : @escaping (ListScrollPositionInfo) -> Bool = { _ in true },
+        didPerform : @escaping (ListScrollPositionInfo) -> () = { _ in }
     ) -> AutoScrollAction
     {
         .scrollToItem(onInsertOf: .init(
             destination: destination ?? .item(insertedIdentifier),
             insertedIdentifier: insertedIdentifier,
             position: position,
-            animated: animated,
-            shouldPerform: shouldPerform
+            animation: animation,
+            shouldPerform: shouldPerform,
+            didPerform: didPerform
         ))
     }
 }
@@ -94,7 +96,7 @@ public extension AutoScrollAction
         public var insertedIdentifier : AnyIdentifier
         
         /// The desired scroll position,
-        public var position : ItemScrollPosition
+        public var position : ScrollPosition
         
         /// Should the change be animated.
         ///
@@ -102,9 +104,12 @@ public extension AutoScrollAction
         /// ----
         /// The action will only be animated if it is animated, **and** the list update itself is
         /// animated. Otherwise, no animation occurs.
-        public var animated : Bool
+        public var animation : ScrollAnimation
         
         /// An additional check you may provide to approve or reject the scroll action.
         public var shouldPerform : (ListScrollPositionInfo) -> Bool
+        
+        /// Called when the list performs the insertion.
+        public var didPerform : (ListScrollPositionInfo) -> ()
     }
 }

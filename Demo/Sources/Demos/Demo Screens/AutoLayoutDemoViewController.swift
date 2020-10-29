@@ -15,7 +15,8 @@ final class AutoLayoutDemoViewController : ListViewController {
      
         list("section") { section in
             
-            section += AutoLayoutContent(header: "Some header text", detail: "Some detail text")
+            //section += AutoLayoutContent(header: "Some header text", detail: "Some detail text")
+            section += AutoLayoutContent(header: "Some header text", detail: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas odio urna, volutpat vitae volutpat quis, auctor ut purus. Pellentesque ac varius metus.")
         }
     }
 }
@@ -63,14 +64,14 @@ struct AutoLayoutContent : ItemContent, Equatable {
             let v = UILabel()
             v.translatesAutoresizingMaskIntoConstraints = false
             v.textColor = .black
+            v.numberOfLines = 0
+            v.lineBreakMode = .byWordWrapping
             v.font = .systemFont(ofSize: 24.0, weight: .regular)
             return v
         }()
         
         override init(frame: CGRect) {
             super.init(frame: frame)
-            
-            self.translatesAutoresizingMaskIntoConstraints = false
             
             self.backgroundColor = .init(white: 1.0, alpha: 0.05)
             
@@ -80,11 +81,12 @@ struct AutoLayoutContent : ItemContent, Equatable {
             NSLayoutConstraint.activate([
                 headerLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 12),
                 headerLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 12),
-                headerLabel.trailingAnchor.constraint(greaterThanOrEqualTo: self.trailingAnchor, constant: 12),
+                headerLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -12),
+
                 detailLabel.topAnchor.constraint(equalTo: headerLabel.bottomAnchor, constant: 8),
                 detailLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 12),
-                detailLabel.trailingAnchor.constraint(greaterThanOrEqualTo: self.trailingAnchor, constant: 12),
-                detailLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: 12)
+                detailLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -12),
+                detailLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -12)
             ])
         }
         

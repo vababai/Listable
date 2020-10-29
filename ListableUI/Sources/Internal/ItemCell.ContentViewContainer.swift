@@ -30,7 +30,7 @@ extension ItemCell {
             self.contentView = Content.createReusableContentView(frame: bounds)
 
             super.init(frame: frame)
-
+            
             self.addSubview(self.contentView)
 
             NotificationCenter.default.addObserver(
@@ -202,6 +202,10 @@ extension ItemCell {
         }
 
         private func set(state: SwipeActionState, animated: Bool = false) {
+            
+//            guard state != self.swipeState else {
+//                return
+//            }
             
             swipeState = state
 

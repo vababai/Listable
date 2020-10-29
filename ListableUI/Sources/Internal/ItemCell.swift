@@ -24,7 +24,7 @@ final class ItemCell<Content:ItemContent> : UICollectionViewCell
     override init(frame: CGRect)
     {
         let bounds = CGRect(origin: .zero, size: frame.size)
-        
+                
         self.contentContainer = ContentContainerView(frame: bounds)
         
         self.background = Content.createReusableBackgroundView(frame: bounds)
@@ -39,6 +39,7 @@ final class ItemCell<Content:ItemContent> : UICollectionViewCell
         self.contentView.backgroundColor = .clear
         
         self.layer.masksToBounds = false
+        
         self.contentView.layer.masksToBounds = false
 
         self.contentView.addSubview(self.contentContainer)

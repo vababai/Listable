@@ -80,15 +80,26 @@ public enum Sizing : Hashable
                 return constraint.clamp(size, with: info.defaultSize)
                 
             case .autolayout(let constraint):
-                let size : CGSize
                 
-                switch info.direction {
-                case .vertical:
-                    size = view.systemLayoutSizeFitting(info.sizeConstraint, withHorizontalFittingPriority: .required, verticalFittingPriority: .defaultLow)
-                case .horizontal:
-                    size = view.systemLayoutSizeFitting(info.sizeConstraint, withHorizontalFittingPriority: .defaultLow, verticalFittingPriority: .required)
-                }
-                
+                let size : CGSize = {
+                    switch info.direction {
+                    case .vertical:
+                        view.bounds.size.width = info.sizeConstraint.width
+                        
+                        return view.systemLayoutSizeFitting(
+                            CGSize(width: info.sizeConstraint.width, height:0),
+                            withHorizontalFittingPriority: .defaultHigh,
+                            verticalFittingPriority: .fittingSizeLevel
+                        )
+                    case .horizontal:
+                        return view.systemLayoutSizeFitting(
+                            CGSize(width: 0, height:info.sizeConstraint.height),
+                            withHorizontalFittingPriority: .fittingSizeLevel,
+                            verticalFittingPriority: .defaultHigh
+                        )
+                    }
+                }()
+
                 return constraint.clamp(size, with: info.defaultSize)
             }
         }()

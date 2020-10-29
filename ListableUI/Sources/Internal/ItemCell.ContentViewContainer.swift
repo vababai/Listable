@@ -13,7 +13,7 @@ extension ItemCell {
     final class ContentContainerView : UIView {
 
         let contentView : Content.ContentView
-        
+                
         private var swipeConfiguration: SwipeConfiguration?
         
         private var swipeState: SwipeActionState = .closed {
@@ -32,12 +32,6 @@ extension ItemCell {
             super.init(frame: frame)
             
             self.addSubview(self.contentView)
-
-            NotificationCenter.default.addObserver(
-                self,
-                selector: #selector(didReceiveCloseNotification),
-                name: .closeSwipeActions, object: nil
-            )
         }
 
         @available(*, unavailable)
@@ -130,8 +124,28 @@ extension ItemCell {
                 set(state: .closed)
             }
         }
+        
+        private var hasRegisteredCloseCallback : Bool = false
+        private weak var listView : ListView? = nil
 
         @objc private func handlePan(sender: UIPanGestureRecognizer) {
+            
+            if
+                self.hasRegisteredCloseCallback == false,
+                self.listView == nil
+            {
+                self.hasRegisteredCloseCallback = true
+                
+                self.listView = self.firstSuperview(ofType: ListView.self)
+                
+                self.listView?.notificationCenter.addObserver(
+                    self,
+                    selector: #selector(didReceiveCloseNotification),
+                    name: .closeSwipeActions,
+                    object: listView
+                )
+            }
+            
             guard let configuration = swipeConfiguration else { return }
 
             let offsetMultiplier = configuration.numberOfActions == 1 ? 0.5 : 0.7
@@ -139,9 +153,16 @@ extension ItemCell {
             let currentSwipeOffset = -contentView.frame.origin.x
             let willPerformAction = currentSwipeOffset > performActionOffset
 
-            if sender.state == .began {
-                let notification = Notification(name: .closeSwipeActions, object: self)
-                NotificationCenter.default.post(notification)
+            if
+                sender.state == .began,
+                let listView = self.listView
+            {
+                listView.notificationCenter.post(
+                    Notification(
+                        name: .closeSwipeActions,
+                        object: listView
+                    )
+                )
             }
 
             switch sender.state {
@@ -202,11 +223,7 @@ extension ItemCell {
         }
 
         private func set(state: SwipeActionState, animated: Bool = false) {
-            
-//            guard state != self.swipeState else {
-//                return
-//            }
-            
+                        
             swipeState = state
 
             if animated {
@@ -220,9 +237,7 @@ extension ItemCell {
         }
 
         @objc private func didReceiveCloseNotification(notification: Notification) {
-            if notification.object as AnyObject? !== self {
-                set(state: .closed, animated: true)
-            }
+            set(state: .closed, animated: true)
         }
 
         @objc private func performAccessibilityAction(_ action: AccessibilitySwipeAction) -> Bool {

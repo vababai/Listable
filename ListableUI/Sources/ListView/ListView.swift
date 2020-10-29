@@ -44,6 +44,8 @@ public final class ListView : UIView, KeyboardObserverDelegate
             collectionView: self.collectionView
         )
         
+        self.notificationCenter = NotificationCenter()
+        
         self.visibleContent = VisibleContent()
 
         self.keyboardObserver = KeyboardObserver.shared
@@ -115,6 +117,7 @@ public final class ListView : UIView, KeyboardObserverDelegate
     let collectionView : CollectionView
     let delegate : Delegate
     let layoutManager : LayoutManager
+    let notificationCenter : NotificationCenter
     
     var collectionViewLayout : CollectionViewLayout {
         self.layoutManager.collectionViewLayout

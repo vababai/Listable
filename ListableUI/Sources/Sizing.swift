@@ -84,18 +84,16 @@ public enum Sizing : Hashable
                 let size : CGSize = {
                     switch info.direction {
                     case .vertical:
-                        view.bounds.size.width = info.sizeConstraint.width
-                        
                         return view.systemLayoutSizeFitting(
                             CGSize(width: info.sizeConstraint.width, height:0),
-                            withHorizontalFittingPriority: .defaultHigh,
+                            withHorizontalFittingPriority: .required,
                             verticalFittingPriority: .fittingSizeLevel
                         )
                     case .horizontal:
                         return view.systemLayoutSizeFitting(
                             CGSize(width: 0, height:info.sizeConstraint.height),
                             withHorizontalFittingPriority: .fittingSizeLevel,
-                            verticalFittingPriority: .defaultHigh
+                            verticalFittingPriority: .required
                         )
                     }
                 }()

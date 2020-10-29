@@ -181,10 +181,9 @@ extension ListView
         func collectionView(
             _ collectionView: UICollectionView,
             targetIndexPathForMoveFromItemAt originalIndexPath: IndexPath,
-            toProposedIndexPath proposedIndexPath: IndexPath
-            ) -> IndexPath
+            toProposedIndexPath proposedIndexPath: IndexPath  
+        ) -> IndexPath
         {
-            
             if originalIndexPath != proposedIndexPath {
                 // TODO: Validate
                 // let item = self.presentationState.item(at: originalIndexPath)
@@ -219,9 +218,12 @@ extension ListView
         
         func scrollViewWillBeginDragging(_ scrollView: UIScrollView)
         {
-            // Notify swipe actions to close.
-
-            NotificationCenter.default.post(Notification(name: .closeSwipeActions, object: self))
+            self.view.notificationCenter.post(
+                Notification(
+                    name: .closeSwipeActions,
+                    object: self.view
+                )
+            )
         }
         
         func scrollViewDidEndDecelerating(_ scrollView: UIScrollView)

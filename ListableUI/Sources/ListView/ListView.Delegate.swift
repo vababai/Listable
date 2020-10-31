@@ -18,6 +18,10 @@ extension ListView
         
         private let headerFooterViewCache = ReusableViewCache()
         
+        func didChangeContent() {
+            self.scrollToTopRevertOffset = nil
+        }
+        
         // MARK: UICollectionViewDelegate
         
         func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath) -> Bool
@@ -231,24 +235,60 @@ extension ListView
         {
             self.view.updatePresentationState(for: .didEndDecelerating)
         }
+        
+        private var scrollToTopRevertOffset : CGPoint? = nil
+        private var scrollingToTop : Bool = false
                 
         func scrollViewShouldScrollToTop(_ scrollView: UIScrollView) -> Bool
         {
             switch view.behavior.scrollsToTop {
-            case .disabled: return false
-            case .enabled: return true
+            case .disabled: break
+                
+            case .enabled(let reverts):
+                if let revert = self.scrollToTopRevertOffset {
+                    scrollView.isUserInteractionEnabled = false
+                    
+                    self.scrollToTopRevertOffset = nil
+                     
+                    self.view.revertScrollToTopForStatusBarTap(with: revert) { finished in
+                        scrollView.isUserInteractionEnabled = true
+                        self.view.updatePresentationState(for: .scrolledToTop)
+                    }
+                } else {
+                    if reverts {
+                        self.scrollToTopRevertOffset = scrollView.contentOffset
+                    } else {
+                        self.scrollToTopRevertOffset = nil
+                    }
+                    
+                    scrollView.isUserInteractionEnabled = false
+                    self.scrollingToTop = true
+                    
+                    self.view.scrollToTopForStatusBarTap { finished in
+                        scrollView.isUserInteractionEnabled = true
+                        self.scrollingToTop = false
+                        
+                        self.view.updatePresentationState(for: .scrolledToTop)
+                    }
+                }
             }
+            
+            return false
         }
         
         func scrollViewDidScrollToTop(_ scrollView: UIScrollView)
         {
-            self.view.updatePresentationState(for: .scrolledToTop)
+            fatalError("Should never occur. `scrollViewShouldScrollToTop(_:)` should always return false.")
         }
         
         private var lastPosition : CGFloat = 0.0
         
         func scrollViewDidScroll(_ scrollView: UIScrollView)
         {
+            if self.scrollingToTop == false {
+                self.scrollToTopRevertOffset = nil
+            }
+            
             guard scrollView.bounds.size.height > 0 else { return }
                         
             SignpostLogger.log(.begin, log: .scrollView, name: "scrollViewDidScroll", for: self.view)

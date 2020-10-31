@@ -94,5 +94,4 @@ extension Set where Element == ScrollAnimation.AnimationOptions {
         
         return options
     }
-    
 }

@@ -42,7 +42,7 @@ public struct Behavior : Equatable
     public init(
         keyboardDismissMode : UIScrollView.KeyboardDismissMode = .interactive,
         keyboardAdjustmentMode : KeyboardAdjustmentMode = .adjustsWhenVisible,
-        scrollsToTop : ScrollsToTop = .enabled,
+        scrollsToTop : ScrollsToTop = .enabled(),
         selectionMode : SelectionMode = .single(),
         underflow : Underflow = Underflow(),
         canCancelContentTouches : Bool = true,
@@ -82,7 +82,7 @@ public extension Behavior
         case disabled
         
         /// When the user taps on the status bar, scroll to the top of the list.
-        case enabled
+        case enabled(tappingAgainReverts : Bool = true)
     }
     
     /// The selection mode of the list view, which controls how many items (if any) can be selected at once.

@@ -68,6 +68,7 @@ public final class ListView : UIView, KeyboardObserverDelegate
         self.collectionView.view = self
 
         self.dataSource.presentationState = self.storage.presentationState
+        self.dataSource.environment = self.environment
         
         self.delegate.view = self
         self.delegate.presentationState = self.storage.presentationState
@@ -505,6 +506,44 @@ public final class ListView : UIView, KeyboardObserverDelegate
         }
     }
     
+    func scrollToTopForStatusBarTap(
+        completion : @escaping ScrollCompletion
+    ) {
+        
+        let origin : CGPoint = {
+            switch self.collectionViewLayout.layout.direction {
+            case .horizontal: return CGPoint(x: 1, y: 0)
+            case .vertical: return CGPoint(x: 0, y: 1)
+            }
+        }()
+        
+        // The rect we scroll to must have an area – an empty rect will result in no scrolling.
+        let rect = CGRect(origin: origin, size: CGSize(width: 1.0, height: 1.0))
+        
+        _ = self.preparePresentationStateForScroll(to: IndexPath(item: 0, section: 0))  {
+            ScrollAnimation.custom(duration: 0.4, options: [.curveEaseOut]).perform(
+                animations: {
+                    self.collectionView.scrollRectToVisible(rect, animated: false)
+                },
+                completion: completion
+            )
+        }
+    }
+    
+    func revertScrollToTopForStatusBarTap(
+        with lastOffset : CGPoint,
+        completion : @escaping ScrollCompletion
+    ) {
+        _ = self.preparePresentationStateForScroll(to: IndexPath(item: 0, section: 0))  {
+            ScrollAnimation.custom(duration: 0.25, options: [.curveEaseOut]).perform(
+                animations: {
+                    self.collectionView.setContentOffset(lastOffset, animated: false)
+                },
+                completion: completion
+            )
+        }
+    }
+    
     //
     // MARK: Setting & Getting Content
     //
@@ -774,6 +813,7 @@ public final class ListView : UIView, KeyboardObserverDelegate
             }
             
         case .contentChanged:
+            self.delegate.didChangeContent()
             self.updatePresentationStateWith(firstVisibleIndexPath: indexPath, for: reason, completion: completion)
 
         case .didEndDecelerating:

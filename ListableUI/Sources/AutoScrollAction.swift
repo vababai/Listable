@@ -30,18 +30,26 @@ public enum AutoScrollAction {
     /// // ID of item which should trigger a scroll event (eg the last item in the list).
     /// let identifier = myItem.identifier
     ///
-    /// let action = .scrollTo(.lastItem, onInsertOf: identifier, position: .init(position: .bottom), animated: true) { state in
+    /// let action = .scrollTo(
+    ///     .lastItem,
+    ///     onInsertOf: identifier,
+    ///     position: .init(position: .bottom),
+    ///     animation: .default
+    /// ) { info in
     ///    // Only scroll to the item if the bottom of the list is already visible.
     ///    return state.isLastItemVisible
+    /// } didPerform : { info in
+    ///     // Called when the scroll action occurs.
     /// }
     /// ```
-    ///
     /// - Parameters
     ///     - destination: Where the list should scroll to on insert. If not specified, the value passed to `onInsertOf` will be used.
     ///     - onInsertOf: The identifier which should trigger the action.
     ///     - position: The position to scroll the list to.
     ///     - animated: If the scroll action should be animated. Note: Will only animate if the list update itself is animated.
     ///     - shouldPerform: A block which lets you control if the auto scroll action should be performed based on the state of the list.
+    ///     - didPerform: A block which is called when the action is performed. If the item causing insertion is inserted multiple times,
+    ///     this block will be called multiple times.
     ///
     public static func scrollTo(
         _ destination : ScrollDestination? = nil,

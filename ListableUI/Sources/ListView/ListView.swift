@@ -506,10 +506,11 @@ public final class ListView : UIView, KeyboardObserverDelegate
         }
     }
     
+    static let scrollToTopAnimation = ScrollAnimation.spring(duration: 0.4)
+    
     func scrollToTopForStatusBarTap(
         completion : @escaping ScrollCompletion
     ) {
-        
         let origin : CGPoint = {
             switch self.collectionViewLayout.layout.direction {
             case .horizontal: return CGPoint(x: 1, y: 0)
@@ -519,15 +520,16 @@ public final class ListView : UIView, KeyboardObserverDelegate
         
         // The rect we scroll to must have an area – an empty rect will result in no scrolling.
         let rect = CGRect(origin: origin, size: CGSize(width: 1.0, height: 1.0))
-        
-        _ = self.preparePresentationStateForScroll(to: IndexPath(item: 0, section: 0))  {
-            ScrollAnimation.custom(duration: 0.4, options: [.curveEaseOut]).perform(
+                
+        //_ = self.preparePresentationStateForScroll(to: IndexPath(item: 0, section: 0))  {
+            Self.scrollToTopAnimation.perform(
                 animations: {
-                    self.collectionView.scrollRectToVisible(rect, animated: false)
+                    self.collectionView.contentOffset = .zero
+                    
                 },
                 completion: completion
             )
-        }
+        //}
     }
     
     func revertScrollToTopForStatusBarTap(
@@ -535,7 +537,7 @@ public final class ListView : UIView, KeyboardObserverDelegate
         completion : @escaping ScrollCompletion
     ) {
         _ = self.preparePresentationStateForScroll(to: IndexPath(item: 0, section: 0))  {
-            ScrollAnimation.custom(duration: 0.25, options: [.curveEaseOut]).perform(
+            Self.scrollToTopAnimation.perform(
                 animations: {
                     self.collectionView.setContentOffset(lastOffset, animated: false)
                 },

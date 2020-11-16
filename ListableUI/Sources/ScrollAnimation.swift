@@ -21,6 +21,8 @@ public enum ScrollAnimation {
     /// The default parameters are 0.25 seconds and `.curveEaseInOut` animation curve.
     case custom(duration : TimeInterval = 0.25, options : Set<AnimationOptions> = .default)
     
+    case spring(duration : TimeInterval = 0.25, timing : UISpringTimingParameters = .init())
+    
     /// Ands the animation with the provided bool, returning the animation if true, and `.none` if false.
     public func and(with animated : Bool) -> ScrollAnimation {
         if animated {
@@ -50,6 +52,17 @@ public enum ScrollAnimation {
             } completion: { finished in
                 completion(finished)
             }
+            
+        case .spring(let duration, let timing):
+            let animator = UIViewPropertyAnimator(duration: duration, timingParameters: timing)
+            
+            animator.addAnimations(animations)
+            
+            animator.addCompletion {
+                completion($0 == .end)
+            }
+            
+            animator.startAnimation()
         }
     }
 }
